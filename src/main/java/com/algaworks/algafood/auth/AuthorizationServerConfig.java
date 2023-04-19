@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.config.annotation.configurers.ClientD
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 
 @Configuration
 @EnableAuthorizationServer
@@ -29,16 +30,17 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 					.authorizedGrantTypes("password")			//Fluxo de Password
 					.scopes("write", "read")
 					.accessTokenValiditySeconds(60 * 60 * 6);	//Tempo de expiração do token (em segundos). Neste caso configurado em 6hs
-//				.and()
-//					.withClient("app-mobile")					//Cliente Mobile
-//					.secret(passwordEncoder.encode("mob123"))	
-//					.authorizedGrantTypes("password", "outroGrandType")			//Fluxo de Password
-//					.scopes("write", "read");
 	}
 
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 		endpoints.authenticationManager(authenticationManager);
+	}
+	
+	@Override
+	public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
+		security.checkTokenAccess("isAuthenticated()");	//Expressao do Spring Security para liberar acesso se estiver autenticado
+//		security.checkTokenAccess("permiteAll()");		//Expressao do Spring Security para liberar acesso sem estar autenticado
 	}
 	
 }

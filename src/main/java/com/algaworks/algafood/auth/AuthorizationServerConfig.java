@@ -3,6 +3,7 @@ package com.algaworks.algafood.auth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -20,24 +21,30 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Autowired
 	private AuthenticationManager authenticationManager;
 	
+//	Refresh token precisa deste service
+	@Autowired
+	private UserDetailsService userDetailsService;
+	
 //	Esses dados devem ser passados em "Authorization" dentro do Postman. São os dados do cliente.
 	
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 		clients.inMemory()
-					.withClient("algafood-web")					//Cliente Web
+					.withClient("algafood-web")							//Cliente Web
 					.secret(passwordEncoder.encode("web123"))
-					.authorizedGrantTypes("password")			//Fluxo de Password
+					.authorizedGrantTypes("password", "refresh_token")	//Fluxo de Password / Refresh Token (Por padrão, expira em 30 Dias)
 					.scopes("write", "read")
-					.accessTokenValiditySeconds(60 * 60 * 6)
+					.accessTokenValiditySeconds(15)
 					.and()
 						.withClient("checktoken")
-							.secret(passwordEncoder.encode("check123"));	//Tempo de expiração do token (em segundos). Neste caso configurado em 6hs
+							.secret(passwordEncoder.encode("check123"));
 	}
 
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-		endpoints.authenticationManager(authenticationManager);
+		endpoints
+			.authenticationManager(authenticationManager)
+			.userDetailsService(userDetailsService);
 	}
 	
 	@Override

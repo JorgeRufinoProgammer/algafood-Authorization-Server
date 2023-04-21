@@ -35,12 +35,23 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 					.authorizedGrantTypes("password", "refresh_token")	//Fluxo de Password / Refresh Token (Por padrão, expira em 30 Dias)
 					.scopes("write", "read")
 					.accessTokenValiditySeconds(60 * 60 * 6)			//6 horas
-					.refreshTokenValiditySeconds(60 * 24 * 60 * 60)		//60 dias
+					.refreshTokenValiditySeconds(60 * 24 * 60 * 60)		//60 dias				
 				.and()
 					.withClient("faturamento")							//Cliente de aplicacao backend  que irá consultar a API
 					.secret(passwordEncoder.encode("faturamento123"))
 					.authorizedGrantTypes("client_credentials")
 					.scopes("write", "read")
+					
+//	Link para acessar no navegador: http://auth.algafood.local:8081/oauth/authorize?response_type=code&client_id=foodanalytics&state=abc&redirect_uri=http://aplicacao-cliente
+//	Irá aparecer a tela para logar, e em seguida autorizar os acessos do cliente "foodanalytics", depois de autorizar, ele irá gera o "code" que será utilizado
+//	para solicitar um "AcessToken" para então poder utilizar a API AlgaFood
+					
+				.and()
+					.withClient("foodanalytics")
+					.secret(passwordEncoder.encode("food123"))
+					.authorizedGrantTypes("authorization_code")
+					.scopes("write", "read")
+					.redirectUris("http://aplicacao-cliente")
 				.and()
 					.withClient("checktoken")
 						.secret(passwordEncoder.encode("check123"));

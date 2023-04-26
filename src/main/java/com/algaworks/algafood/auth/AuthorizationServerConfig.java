@@ -55,7 +55,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 					.secret(passwordEncoder.encode("food123"))
 					.authorizedGrantTypes("authorization_code")
 					.scopes("write", "read")
-					.redirectUris("http://www.foodanalytics.local:8082")
+					.redirectUris("http://localhost:8082/")
 				.and()									 //Exemplo luxo Implicit Grant Type (não recomendado pois o token vai na URI)
 					.withClient("webadmin")
 					.authorizedGrantTypes("implicit")

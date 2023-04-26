@@ -55,7 +55,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 //	code_challenge=teste123&code_challenge_method=plain
 				.and()
 					.withClient("foodanalytics")
-					.secret(passwordEncoder.encode("food123"))
+					.secret(passwordEncoder.encode(""))		//Com o PKCE não é obrigatorio o uso de um "secret"	
 					.authorizedGrantTypes("authorization_code")
 					.scopes("write", "read")
 					.redirectUris("http://localhost:8082")	//Não tem a barra no final como tinha no ultimo commit antes deste
@@ -80,8 +80,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	
 	@Override
 	public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-		security.checkTokenAccess("isAuthenticated()");	//Expressao do Spring Security para liberar acesso se estiver autenticado
-//		security.checkTokenAccess("permiteAll()");		//Expressao do Spring Security para liberar acesso sem estar autenticado
+		security.checkTokenAccess("isAuthenticated()")		//Expressao do Spring Security para liberar acesso se estiver autenticado
+//		security.checkTokenAccess("permiteAll()")			//Expressao do Spring Security para liberar acesso sem estar autenticado
+					.allowFormAuthenticationForClients();	//Permite autenticacao pelo "body" em vez de usar o "httpBase"	
 	}
 	
 //	Instancia do PKCE aos tokens

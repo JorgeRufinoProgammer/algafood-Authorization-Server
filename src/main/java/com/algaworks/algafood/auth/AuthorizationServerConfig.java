@@ -49,14 +49,17 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 //	Link para acessar no navegador: http://auth.algafood.local:8081/oauth/authorize?response_type=code&client_id=foodanalytics&state=abc&redirect_uri=http://aplicacao-cliente
 //	Irá aparecer a tela para logar, e em seguida autorizar os acessos do cliente "foodanalytics", depois de autorizar, ele irá gera o "code" que será utilizado
 //	para solicitar um "AcessToken" para então poder utilizar a API AlgaFood
-					
+	
+//	Link para utilzar PKCE com metodo "Plain"
+//	http://auth.algafood.local:8081/oauth/authorize?response_type=code&client_id=foodanalytics&direct_uri=http://localhost:8082&
+//	code_challenge=teste123&code_challenge_method=plain
 				.and()
 					.withClient("foodanalytics")
 					.secret(passwordEncoder.encode("food123"))
 					.authorizedGrantTypes("authorization_code")
 					.scopes("write", "read")
-					.redirectUris("http://localhost:8082/")
-				.and()									 //Exemplo luxo Implicit Grant Type (não recomendado pois o token vai na URI)
+					.redirectUris("http://localhost:8082")	//Não tem a barra no final como tinha no ultimo commit antes deste
+				.and()									 	//Exemplo luxo Implicit Grant Type (não recomendado pois o token vai na URI)
 					.withClient("webadmin")
 					.authorizedGrantTypes("implicit")
 					.scopes("write", "read")

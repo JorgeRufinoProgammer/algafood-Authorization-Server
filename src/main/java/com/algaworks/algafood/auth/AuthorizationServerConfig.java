@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +15,8 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.CompositeTokenGranter;
 import org.springframework.security.oauth2.provider.TokenGranter;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 
 @Configuration
 @EnableAuthorizationServer
@@ -29,6 +32,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Autowired
 	private UserDetailsService userDetailsService;
 	
+//	Injetamos a fabrica de conexões com o Redis
+	@Autowired
+	private RedisConnectionFactory redisConnectionFactory;
 //	Esses dados devem ser passados em "Authorization" dentro do Postman. São os dados do cliente.
 	
 	@Override
@@ -75,6 +81,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 			.authenticationManager(authenticationManager)
 			.userDetailsService(userDetailsService)
 			.reuseRefreshTokens(false) 					//Toda vez que um RefreshToken for utilizado, será criado um novo RefreshToken no lugar do utilizado
+			.tokenStore(redisTokenStore())				//Toda vez que um token for criado, ele será salvo no Redis
 			.tokenGranter(tokenGranter(endpoints));		//Chama o metodo para adicionar o PKCE aos tipos de tokens suportados
 	}
 	
@@ -95,6 +102,10 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 				pkceAuthorizationCodeTokenGranter, endpoints.getTokenGranter());
 		
 		return new CompositeTokenGranter(granters);
+	}
+
+	private TokenStore redisTokenStore() {
+		return new RedisTokenStore(redisConnectionFactory);
 	}
 	
 }

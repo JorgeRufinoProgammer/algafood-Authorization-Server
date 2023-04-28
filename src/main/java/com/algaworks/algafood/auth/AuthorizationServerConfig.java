@@ -3,8 +3,8 @@ package com.algaworks.algafood.auth;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,8 +15,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.CompositeTokenGranter;
 import org.springframework.security.oauth2.provider.TokenGranter;
-import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
 @Configuration
 @EnableAuthorizationServer
@@ -31,10 +30,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 //	Refresh token precisa deste service
 	@Autowired
 	private UserDetailsService userDetailsService;
-	
-//	Injetamos a fabrica de conexões com o Redis
-	@Autowired
-	private RedisConnectionFactory redisConnectionFactory;
+
 //	Esses dados devem ser passados em "Authorization" dentro do Postman. São os dados do cliente.
 	
 	@Override
@@ -80,9 +76,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 		endpoints
 			.authenticationManager(authenticationManager)
 			.userDetailsService(userDetailsService)
-			.reuseRefreshTokens(false) 					//Toda vez que um RefreshToken for utilizado, será criado um novo RefreshToken no lugar do utilizado
-			.tokenStore(redisTokenStore())				//Toda vez que um token for criado, ele será salvo no Redis
-			.tokenGranter(tokenGranter(endpoints));		//Chama o metodo para adicionar o PKCE aos tipos de tokens suportados
+			.reuseRefreshTokens(false) 							//Toda vez que um RefreshToken for utilizado, será criado um novo RefreshToken no lugar do utilizado
+			.accessTokenConverter(jwtAccessTokenConverter())	//Adiciona o metodo conversor JWT
+			.tokenGranter(tokenGranter(endpoints));				//Chama o metodo para adicionar o PKCE aos tipos de tokens suportados
 	}
 	
 	@Override
@@ -103,9 +99,15 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 		
 		return new CompositeTokenGranter(granters);
 	}
-
-	private TokenStore redisTokenStore() {
-		return new RedisTokenStore(redisConnectionFactory);
-	}
 	
+	@Bean
+	public JwtAccessTokenConverter jwtAccessTokenConverter() {
+		JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+		
+//		Chave secreta de criaçao/validação dos tokens
+//		Chave secreta precisa ter mais de 32 bytes
+		jwtAccessTokenConverter.setSigningKey("fd4a65f49h84tger6g13d6s54ad6af54ds");
+		
+		return jwtAccessTokenConverter;
+	}
 }

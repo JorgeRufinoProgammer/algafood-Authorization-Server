@@ -88,8 +88,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	
 	@Override
 	public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-		security.checkTokenAccess("isAuthenticated()")		//Expressao do Spring Security para liberar acesso se estiver autenticado
-//		security.checkTokenAccess("permiteAll()")			//Expressao do Spring Security para liberar acesso sem estar autenticado
+//		security.checkTokenAccess("isAuthenticated()")		//Expressao do Spring Security para liberar acesso se estiver autenticado
+		security.checkTokenAccess("permitAll()")			//Expressao do Spring Security para liberar acesso sem estar autenticado
+					.tokenKeyAccess("permitAll")			//Gera a chave publica por um "GET" no endpoint ("/token_key"). Exluir os "\n" dentro da chave
 					.allowFormAuthenticationForClients();	//Permite autenticacao pelo "body" em vez de usar o "httpBase"	
 	}
 	

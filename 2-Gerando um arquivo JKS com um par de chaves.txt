@@ -3,3 +3,11 @@ keytool -genkeypair -alias algafood -keyalg RSA -keypass 123456 -keystore algafo
 
 2 - Listando as entradas de um arquivo JKS:
 keytool -list -keystore algafood.jks
+
+Extraindo a chave pública no formato PEM:
+
+1 - Gera o certificado:
+keytool -export -rfc -alias algafood -keystore algafood.jks -file algafood-cert.pem
+
+2 - Gerando a chave pública (Este comando pode ser feito no GitBash):
+openssl x509 -pubkey -noout -in algafood-cert.pem > algafood-public-key.pem

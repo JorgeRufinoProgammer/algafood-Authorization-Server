@@ -32,6 +32,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 //	Refresh token precisa deste service
 	@Autowired
 	private UserDetailsService userDetailsService;
+	
+	@Autowired
+	private JwtKeyStoreProperties jwtKeyStoreProperties; 
 
 //	Esses dados devem ser passados em "Authorization" dentro do Postman. São os dados do cliente.
 	
@@ -104,20 +107,17 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	
 	@Bean
 	public JwtAccessTokenConverter jwtAccessTokenConverter() {
-		JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-
-		var jksResource = new ClassPathResource("keystores/algafood.jks"); //Local do arquivo jks com as chaves/keys
-
-		var keyStorePass = "123456";	//O "keypass" que configuramos para acessar o par de chaves	
-		
-		var keyPairAlias = "algafood"; 	//O "alias" do par de chaves
-				
-		var keyStoreKeyFactory = new KeyStoreKeyFactory(jksResource, keyStorePass.toCharArray());	//Fabrica de chaves
-				
-		var keyPair = keyStoreKeyFactory.getKeyPair(keyPairAlias);	//Buscamos o par de chaves pelo "alias"
-		
-		jwtAccessTokenConverter.setKeyPair(keyPair);	//Setamos a keypair a ser usada
-		
-		return jwtAccessTokenConverter;
+		var jwtAccessTokenConverter = new JwtAccessTokenConverter();
+	    
+	    var jksResource = new ClassPathResource(jwtKeyStoreProperties.getPath());
+	    var keyStorePass = jwtKeyStoreProperties.getPassword();
+	    var keyPairAlias = jwtKeyStoreProperties.getKeypairAlias();
+	    
+	    var keyStoreKeyFactory = new KeyStoreKeyFactory(jksResource, keyStorePass.toCharArray());
+	    var keyPair = keyStoreKeyFactory.getKeyPair(keyPairAlias);
+	    
+	    jwtAccessTokenConverter.setKeyPair(keyPair);
+	    
+	    return jwtAccessTokenConverter;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.provider.CompositeTokenGranter;
 import org.springframework.security.oauth2.provider.TokenGranter;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
 @Configuration
 @EnableAuthorizationServer
@@ -103,10 +105,18 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Bean
 	public JwtAccessTokenConverter jwtAccessTokenConverter() {
 		JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+
+		var jksResource = new ClassPathResource("keystores/algafood.jks"); //Local do arquivo jks com as chaves/keys
+
+		var keyStorePass = "123456";	//O "keypass" que configuramos para acessar o par de chaves	
 		
-//		Chave secreta de criaçao/validação dos tokens
-//		Chave secreta precisa ter mais de 32 bytes
-		jwtAccessTokenConverter.setSigningKey("fd4a65f49h84tger6g13d6s54ad6af54ds");
+		var keyPairAlias = "algafood"; 	//O "alias" do par de chaves
+				
+		var keyStoreKeyFactory = new KeyStoreKeyFactory(jksResource, keyStorePass.toCharArray());	//Fabrica de chaves
+				
+		var keyPair = keyStoreKeyFactory.getKeyPair(keyPairAlias);	//Buscamos o par de chaves pelo "alias"
+		
+		jwtAccessTokenConverter.setKeyPair(keyPair);	//Setamos a keypair a ser usada
 		
 		return jwtAccessTokenConverter;
 	}

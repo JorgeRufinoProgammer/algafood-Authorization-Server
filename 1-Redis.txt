@@ -1,0 +1,11 @@
+Redis do Memurai
+No CMD como admin:
+
+1 - Executa o cliente Redis
+	memurai-cli.exe
+	
+2 - Lista dos dados do banco
+	keys *
+
+3 - Apaga todos dos dados do banco	
+	flushall 

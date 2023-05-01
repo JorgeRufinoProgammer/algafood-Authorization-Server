@@ -16,6 +16,9 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.CompositeTokenGranter;
 import org.springframework.security.oauth2.provider.TokenGranter;
+import org.springframework.security.oauth2.provider.approval.ApprovalStore;
+import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
@@ -83,9 +86,18 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 			.userDetailsService(userDetailsService)
 			.reuseRefreshTokens(false) 							//Toda vez que um RefreshToken for utilizado, será criado um novo RefreshToken no lugar do utilizado
 			.accessTokenConverter(jwtAccessTokenConverter())	//Adiciona o metodo conversor JWT
+			.approvalStore(aprovalStore(endpoints.getTokenStore()))
 			.tokenGranter(tokenGranter(endpoints));				//Chama o metodo para adicionar o PKCE aos tipos de tokens suportados
 	}
 	
+//	Configura a permissao de aprovaçao dos escopos/scopes configurados
+	private ApprovalStore aprovalStore(TokenStore tokenStore) {
+		var approvalStore = new TokenApprovalStore();
+		approvalStore.setTokenStore(tokenStore);
+		
+		return approvalStore;
+	}
+
 	@Override
 	public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
 //		security.checkTokenAccess("isAuthenticated()")		//Expressao do Spring Security para liberar acesso se estiver autenticado

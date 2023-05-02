@@ -14,11 +14,13 @@ public class AuthUser extends User{
 	private static final long serialVersionUID = 1L;
 	
 	private String fullName;
+	private Long userId;
 	
 //	A senha precisa está cryptografada no banco de dados (site Bcrypt-generator)
 	public AuthUser(Usuario usuario) {
 		super(usuario.getEmail(), usuario.getSenha(), Collections.emptyList());
 		
 		this.fullName = usuario.getNome();
+		this.userId = usuario.getId();
 	}
 }

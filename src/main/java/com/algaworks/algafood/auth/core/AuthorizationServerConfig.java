@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.provider.CompositeTokenGranter;
 import org.springframework.security.oauth2.provider.TokenGranter;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
@@ -81,11 +82,19 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+		
+//		Cadeia de Enhancers
+		var enhancerChain = new TokenEnhancerChain();
+		
+//		Primeiro adiconamos os nosso custom enhancers e por ultimo o TokenCoverter
+		enhancerChain.setTokenEnhancers(Arrays.asList(new JwtCustomClaimsTokenEnhancer(), jwtAccessTokenConverter()));
+		
 		endpoints
 			.authenticationManager(authenticationManager)
 			.userDetailsService(userDetailsService)
 			.reuseRefreshTokens(false) 							//Toda vez que um RefreshToken for utilizado, será criado um novo RefreshToken no lugar do utilizado
 			.accessTokenConverter(jwtAccessTokenConverter())	//Adiciona o metodo conversor JWT
+			.tokenEnhancer(enhancerChain)						//Passamos a cadeia/lista de "enhancers"
 			.approvalStore(aprovalStore(endpoints.getTokenStore()))
 			.tokenGranter(tokenGranter(endpoints));				//Chama o metodo para adicionar o PKCE aos tipos de tokens suportados
 	}
